@@ -1,6 +1,9 @@
 package eu.kanade.tachiyomi.ui.reader.viewer
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.graphics.PointF
 import android.graphics.RectF
 import android.graphics.drawable.Animatable
@@ -282,12 +285,22 @@ open class ReaderPageImageView @JvmOverloads constructor(
             },
         )
 
+
         when (image) {
             is BitmapDrawable -> setImage(ImageSource.bitmap(image.bitmap))
-            is InputStream -> setImage(ImageSource.inputStream(image))
+            is InputStream -> setImage(ImageSource.bitmap(rotateBitmap(BitmapFactory.decodeStream(image),90f)))
             else -> throw IllegalArgumentException("Not implemented for class ${image::class.simpleName}")
         }
+
         isVisible = true
+    }
+
+    private fun rotateBitmap(source: Bitmap, degrees: Float): Bitmap {
+        val matrix = Matrix()
+        matrix.postRotate(degrees)
+        return Bitmap.createBitmap(
+            source, 0, 0, source.width, source.height, matrix, true
+        )
     }
 
     private fun prepareAnimatedImageView() {
